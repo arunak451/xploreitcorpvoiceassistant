@@ -23,38 +23,38 @@ app.add_middleware(
 class ContactForm(BaseModel):
     name: str
     email: str
-    phone: str
     message: str
+
+
+class CallForm(BaseModel):
+    name: str
+    phone: str
+    course: str
 
 
 @app.post("/contact")
 def send_contact(form: ContactForm):
-    # 1. Email send panna
     try:
         msg = MIMEMultipart()
         msg["From"] = os.getenv("GMAIL_USER")
         msg["To"] = os.getenv("GMAIL_USER")
         msg["Subject"] = f"New Enquiry from {form.name}"
-
-        body = f"""
-        Name: {form.name}
-        Email: {form.email}
-        Phone: {form.phone}
-        Message: {form.message}
-        """
+        body = f"Name: {form.name}\nEmail: {form.email}\nMessage: {form.message}"
         msg.attach(MIMEText(body, "plain"))
-
         server = smtplib.SMTP("smtp.gmail.com", 587)
         server.starttls()
         server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_PASSWORD"))
         server.send_message(msg)
         server.quit()
+        return {"status": "success", "message": "Email sent!"}
     except Exception as e:
-        print(f"Email error: {e}")
+        return {"status": "error", "message": str(e)}
 
-    # 2. VAPI Outbound Call
+
+@app.post("/call")
+def make_call(form: CallForm):
     try:
-        vapi_response = requests.post(
+        response = requests.post(
             "https://api.vapi.ai/call/phone",
             headers={
                 "Authorization": f"Bearer {os.getenv('VAPI_API_KEY')}",
@@ -66,11 +66,12 @@ def send_contact(form: ContactForm):
                 "customer": {
                     "number": form.phone,
                     "name": form.name
+                },
+                "assistantOverrides": {
+                    "firstMessage": f"Hello {form.name}! I'm calling from Xplore IT Corp regarding your enquiry about {form.course} course. How can I help you?"
                 }
             }
         )
-        print(f"VAPI response: {vapi_response.json()}")
+        return {"status": "success", "data": response.json()}
     except Exception as e:
-        print(f"VAPI error: {e}")
-
-    return {"status": "success", "message": "Email sent and call initiated!"}
+        return {"status": "error", "message": str(e)}
