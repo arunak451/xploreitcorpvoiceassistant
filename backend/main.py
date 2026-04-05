@@ -6,6 +6,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 import os
+import requests
 
 load_dotenv()
 
@@ -18,13 +19,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 class ContactForm(BaseModel):
     name: str
     email: str
+    phone: str
     message: str
+
 
 @app.post("/contact")
 def send_contact(form: ContactForm):
+    # 1. Email send panna
     try:
         msg = MIMEMultipart()
         msg["From"] = os.getenv("GMAIL_USER")
@@ -34,6 +39,7 @@ def send_contact(form: ContactForm):
         body = f"""
         Name: {form.name}
         Email: {form.email}
+        Phone: {form.phone}
         Message: {form.message}
         """
         msg.attach(MIMEText(body, "plain"))
@@ -43,7 +49,28 @@ def send_contact(form: ContactForm):
         server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_PASSWORD"))
         server.send_message(msg)
         server.quit()
-
-        return {"status": "success", "message": "Email sent!"}
     except Exception as e:
-        return {"status": "error", "message": str(e)}
+        print(f"Email error: {e}")
+
+    # 2. VAPI Outbound Call
+    try:
+        vapi_response = requests.post(
+            "https://api.vapi.ai/call/phone",
+            headers={
+                "Authorization": f"Bearer {os.getenv('VAPI_API_KEY')}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "assistantId": os.getenv("VAPI_ASSISTANT_ID"),
+                "phoneNumberId": os.getenv("VAPI_PHONE_NUMBER_ID"),
+                "customer": {
+                    "number": form.phone,
+                    "name": form.name
+                }
+            }
+        )
+        print(f"VAPI response: {vapi_response.json()}")
+    except Exception as e:
+        print(f"VAPI error: {e}")
+
+    return {"status": "success", "message": "Email sent and call initiated!"}

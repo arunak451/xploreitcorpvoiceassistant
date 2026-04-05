@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import emailjs from '@emailjs/browser';
 import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
@@ -7,7 +7,7 @@ import axios from 'axios';
 const EMAILJS_SERVICE_ID = 'service_pc06xoe';
 const EMAILJS_TEMPLATE_ID = 'template_b9eq63o';
 const EMAILJS_PUBLIC_KEY = '1FUVeR-EoOZ1mjOi4';
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = 'https://xplore-it-backend.onrender.com';
 
 function App() {
   const [activeTab, setActiveTab] = useState('voice');
@@ -33,7 +33,6 @@ function App() {
   };
 
   const handleSubmit = async () => {
-    console.log('Submitting:', { name, email, phone, course });
     if (!name || !email || !phone || !course) {
       setStatus('error');
       return;
@@ -125,20 +124,25 @@ function App() {
               <div style={{ color: '#555', fontSize: '13px' }}>// fill the form, we'll reach out to you!</div>
             </div>
 
-            {status === 'success' && <div style={{ background: '#0d1f0d', border: '1px solid #1a3d1a', color: '#4caf50', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px' }}>✓ Enquiry submitted! Email sent, Excel downloaded & AI call initiated! 📞</div>}
-            {status === 'error' && <div style={{ background: '#1f0d0d', border: '1px solid #3d1a1a', color: '#f44336', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px' }}>✗ Please fill all required fields!</div>}
+            {status === 'success' && (
+              <div style={{ background: '#0d1f0d', border: '1px solid #1a3d1a', color: '#4caf50', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px' }}>
+                ✓ Enquiry submitted! Email sent, Excel downloaded & AI call initiated! 📞
+              </div>
+            )}
+            {status === 'error' && (
+              <div style={{ background: '#1f0d0d', border: '1px solid #3d1a1a', color: '#f44336', padding: '12px', borderRadius: '10px', marginBottom: '16px', fontSize: '13px' }}>
+                ✗ Please fill all required fields!
+              </div>
+            )}
 
             <input style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: '#fff', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }} placeholder="Your Name *" value={name} onChange={e => setName(e.target.value)} />
             <input style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: '#fff', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }} placeholder="Your Email *" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-            <input style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: '#fff', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }} placeholder="Your Phone Number *" type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
+            <input style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: '#fff', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }} placeholder="Phone Number * (e.g. +91 98765 43210)" type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
 
             <select
               style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: course ? '#fff' : '#888', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box', cursor: 'pointer' }}
               value={course}
-              onChange={e => {
-                console.log('Course changed to:', e.target.value);
-                setCourse(e.target.value);
-              }}
+              onChange={e => setCourse(e.target.value)}
             >
               <option value="">Select Course *</option>
               <option value="Python">Python</option>
