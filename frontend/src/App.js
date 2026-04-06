@@ -7,7 +7,7 @@ import axios from 'axios';
 const EMAILJS_SERVICE_ID = 'service_pc06xoe';
 const EMAILJS_TEMPLATE_ID = 'template_b9eq63o';
 const EMAILJS_PUBLIC_KEY = '1FUVeR-EoOZ1mjOi4';
-const BACKEND_URL = 'https://xplore-it-backend.onrender.com';
+const BACKEND_URL = 'http://localhost:5000';
 
 function App() {
   const [activeTab, setActiveTab] = useState('voice');
@@ -33,7 +33,8 @@ function App() {
   };
 
   const handleSubmit = async () => {
-    if (!name || !email || !phone || !course) {
+    console.log('Form values:', { name, email, phone, course });
+    if (!name.trim() || !email.trim() || !phone.trim() || !course) {
       setStatus('error');
       return;
     }
@@ -86,14 +87,8 @@ function App() {
       </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', padding: '20px' }}>
-        <button
-          onClick={() => setActiveTab('voice')}
-          style={{ padding: '12px 32px', borderRadius: '30px', border: 'none', cursor: 'pointer', background: activeTab === 'voice' ? '#4caf50' : '#222', color: activeTab === 'voice' ? '#000' : '#888', fontWeight: '600', fontSize: '14px' }}
-        >🎙️ Voice Assistant</button>
-        <button
-          onClick={() => setActiveTab('contact')}
-          style={{ padding: '12px 32px', borderRadius: '30px', border: 'none', cursor: 'pointer', background: activeTab === 'contact' ? '#ffc107' : '#222', color: activeTab === 'contact' ? '#000' : '#888', fontWeight: '600', fontSize: '14px' }}
-        >📩 Enquire Now</button>
+        <button onClick={() => setActiveTab('voice')} style={{ padding: '12px 32px', borderRadius: '30px', border: 'none', cursor: 'pointer', background: activeTab === 'voice' ? '#4caf50' : '#222', color: activeTab === 'voice' ? '#000' : '#888', fontWeight: '600', fontSize: '14px' }}>🎙️ Voice Assistant</button>
+        <button onClick={() => setActiveTab('contact')} style={{ padding: '12px 32px', borderRadius: '30px', border: 'none', cursor: 'pointer', background: activeTab === 'contact' ? '#ffc107' : '#222', color: activeTab === 'contact' ? '#000' : '#888', fontWeight: '600', fontSize: '14px' }}>📩 Enquire Now</button>
       </div>
 
       <div style={{ maxWidth: '780px', margin: '0 auto', padding: '8px 24px 40px' }}>
@@ -140,7 +135,7 @@ function App() {
             <input style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: '#fff', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box' }} placeholder="Phone Number * (e.g. +91 98765 43210)" type="tel" value={phone} onChange={e => setPhone(e.target.value)} />
 
             <select
-              style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: course ? '#fff' : '#888', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box', cursor: 'pointer' }}
+              style={{ width: '100%', padding: '13px 16px', background: '#0a0a0a', border: '1px solid #1f1f1f', borderRadius: '12px', color: course ? '#fff' : '#555', fontSize: '14px', marginBottom: '12px', outline: 'none', boxSizing: 'border-box', cursor: 'pointer' }}
               value={course}
               onChange={e => setCourse(e.target.value)}
             >

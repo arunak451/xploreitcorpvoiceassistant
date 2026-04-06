@@ -54,6 +54,16 @@ def send_contact(form: ContactForm):
 @app.post("/call")
 def make_call(form: CallForm):
     try:
+        # Phone number clean panna
+        clean_phone = form.phone.replace(" ", "").replace("-", "").strip()
+        if not clean_phone.startswith("+"):
+            clean_phone = "+" + clean_phone
+
+        print(f"Calling: {clean_phone} for {form.name} - {form.course}")
+        print(f"VAPI API Key: {os.getenv('VAPI_API_KEY')[:10]}...")
+        print(f"Assistant ID: {os.getenv('VAPI_ASSISTANT_ID')}")
+        print(f"Phone Number ID: {os.getenv('VAPI_PHONE_NUMBER_ID')}")
+
         response = requests.post(
             "https://api.vapi.ai/call/phone",
             headers={
@@ -64,7 +74,7 @@ def make_call(form: CallForm):
                 "assistantId": os.getenv("VAPI_ASSISTANT_ID"),
                 "phoneNumberId": os.getenv("VAPI_PHONE_NUMBER_ID"),
                 "customer": {
-                    "number": form.phone,
+                    "number": clean_phone,
                     "name": form.name
                 },
                 "assistantOverrides": {
@@ -72,6 +82,11 @@ def make_call(form: CallForm):
                 }
             }
         )
+
+        print(f"VAPI Status: {response.status_code}")
+        print(f"VAPI Response: {response.json()}")
+
         return {"status": "success", "data": response.json()}
     except Exception as e:
+        print(f"VAPI Error: {e}")
         return {"status": "error", "message": str(e)}
